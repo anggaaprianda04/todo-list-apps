@@ -37,6 +37,8 @@ class DatabaseInstance {
   }
 
   Future<List<TodoModel>> getAll() async {
+    _database ??= await database();
+    await Future.delayed(const Duration(seconds: 1));
     final data = await _database!.query(table);
     List<TodoModel> result = data.map((e) => TodoModel.fromJson(e)).toList();
     // print(result);
@@ -45,6 +47,12 @@ class DatabaseInstance {
 
   Future<int> insert(Map<String, dynamic> row) async {
     final query = await _database!.insert(table, row);
+    return query;
+  }
+
+  Future<int> delete(int id) async {
+    final query =
+        await _database!.delete(table, where: '$id = ?', whereArgs: [id]);
     return query;
   }
 }
