@@ -50,9 +50,7 @@ class DatabaseInstance {
     return query;
   }
 
-  Future<int> delete(int id) async {
-    final query =
-        await _database!.delete(table, where: '$id = ?', whereArgs: [id]);
-    return query;
+  Future delete(int idParams) async {
+    await _database!.delete(table, where: '$id = ?', whereArgs: [idParams]);
   }
 }

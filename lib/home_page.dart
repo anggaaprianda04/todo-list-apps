@@ -25,6 +25,30 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  Future deleteTodo(int id) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('AlertDialog Title'),
+        content: const Text('AlertDialog description'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, "Cancel"),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await databaseInstance.delete(id);
+              setState(() {});
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,22 +77,37 @@ class _HomePageState extends State<HomePage> {
             if (snapshot.hasData) {
               if (snapshot.data!.isEmpty) {
                 return const Text("List masih kosong");
+              } else {
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailPage(
+                              todoModel: snapshot.data![index],
+                            ),
+                          )),
+                      child: ListTile(
+                        title: Text(
+                          snapshot.data![index].title ?? "",
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                            snapshot.data![index].createdAt!.substring(0, 10)),
+                        trailing: GestureDetector(
+                          onTap: () => deleteTodo(snapshot.data![index].id!),
+                          child: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
               }
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DetailPage(),
-                        )),
-                    child: ListTile(
-                      title: Text(snapshot.data![index].title ?? ""),
-                    ),
-                  );
-                },
-              );
             } else {
               return const Center(
                 child: CircularProgressIndicator(
