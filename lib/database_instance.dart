@@ -53,4 +53,10 @@ class DatabaseInstance {
   Future delete(int idParams) async {
     await _database!.delete(table, where: '$id = ?', whereArgs: [idParams]);
   }
+
+  Future<int> update(int idParams, Map<String, dynamic> row) async {
+    final query = await _database!
+        .update(table, row, where: '$id = ?', whereArgs: [idParams]);
+    return query;
+  }
 }

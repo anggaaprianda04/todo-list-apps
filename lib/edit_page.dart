@@ -2,29 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/custom_appbar.dart';
 import 'package:todo_list/custom_form_field.dart';
 import 'package:todo_list/database_instance.dart';
+import 'package:todo_list/todo_model.dart';
 
-class CreatePage extends StatefulWidget {
-  const CreatePage({super.key});
+class EditPage extends StatefulWidget {
+  final TodoModel? todoModel;
+  const EditPage({required this.todoModel, super.key});
 
   @override
-  State<CreatePage> createState() => _CreatePageState();
+  State<EditPage> createState() => _EditPageState();
 }
 
-class _CreatePageState extends State<CreatePage> {
+class _EditPageState extends State<EditPage> {
   DatabaseInstance databaseInstance = DatabaseInstance();
-  TextEditingController titleController = TextEditingController(text: "");
-  TextEditingController descController = TextEditingController(text: "");
+  TextEditingController titleEditController = TextEditingController();
+  TextEditingController descEditController = TextEditingController();
 
   @override
   void dispose() {
-    titleController.clear();
-    descController.clear();
+    titleEditController.clear();
+    descEditController.clear();
     super.dispose();
   }
 
   @override
   void initState() {
     databaseInstance.database();
+    titleEditController.text = widget.todoModel?.title ?? "";
+    descEditController.text = widget.todoModel?.desc ?? "";
     super.initState();
   }
 
@@ -33,7 +37,7 @@ class _CreatePageState extends State<CreatePage> {
     return Scaffold(
       appBar: const CustomAppBar(
         isBackPage: true,
-        title: 'Tambah data',
+        title: 'Edit data',
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -44,11 +48,11 @@ class _CreatePageState extends State<CreatePage> {
             ),
             CustomFormFiled(
               title: "Judul",
-              textEditingController: titleController,
+              textEditingController: titleEditController,
             ),
             CustomFormFiled(
               title: "Deskripsi",
-              textEditingController: descController,
+              textEditingController: descEditController,
               isMaxLine: true,
             ),
             ElevatedButton(
@@ -58,16 +62,15 @@ class _CreatePageState extends State<CreatePage> {
                     backgroundColor:
                         MaterialStatePropertyAll(Colors.deepPurple)),
                 onPressed: () async {
-                  await databaseInstance.insert({
-                    "title": titleController.text,
-                    "desc": descController.text,
-                    "created_at": DateTime.now().toString(),
+                  await databaseInstance.update(widget.todoModel!.id!, {
+                    "title": titleEditController.text,
+                    "desc": descEditController.text,
                     "updated_at": DateTime.now().toString(),
                   });
                   Navigator.pop(context);
                 },
                 child: const Text(
-                  'Tambah',
+                  'Ubah',
                   style: TextStyle(
                       fontWeight: FontWeight.w700, color: Colors.white),
                 ))
